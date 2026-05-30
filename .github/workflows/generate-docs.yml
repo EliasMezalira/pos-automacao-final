@@ -1,0 +1,125 @@
+name: Gerar Documentação com IA
+on:
+  push:
+permissions:
+  contents: write
+
+jobs:
+  gerar_documentacao:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Instalar dependências
+        run: |
+          python -m pip install --user -r requirements.txt || true
+
+      - name: Login GitHub CLI
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+
+      - name: Gerar/Atualizar docs com IA
+        env:
+          GROCK_API_KEY: ${{ secrets.GROCK_API_KEY }}
+        run: |
+          python3 - <<'PY'
+import os, json, subprocess, sys
+
+# Coletar contexto resumido do repositório
+def read(path, n=4000):
+    try:
+        with open(path, encoding='utf-8') as f:
+            return f.read()[:n]
+    except Exception:
+        return ''
+
+files = {}
+if os.path.exists('README.md'):
+    files['README.md'] = read('README.md')
+
+if os.path.isdir('src'):
+    for root,_,fnames in os.walk('src'):
+        for f in fnames:
+            if f.endswith('.py'):
+                p = os.path.join(root,f)
+                files[p] = read(p)
+
+if os.path.isdir('tests'):
+    for root,_,fnames in os.walk('tests'):
+        for f in fnames:
+            if f.endswith('.py'):
+                p = os.path.join(root,f)
+                files[p] = read(p)
+
+system = (
+    "Você é um gerador de documentação técnica. Retorne APENAS um JSON válido "
+    "onde as chaves são caminhos em docs/ (ex: 'docs/usage.md') e os valores são strings "
+    "com o conteúdo em Markdown dos arquivos. Não inclua explicações adicionais."
+)
+user = "Gere ou atualize a documentação para este repositório com base nos arquivos (resumidos):\n" + json.dumps(files, ensure_ascii=False)
+
+payload = {"model":"llama-3.1-8b-instant", "messages":[{"role":"system","content":system},{"role":"user","content":user}]}
+
+groq_key = os.environ.get('GROCK_API_KEY','')
+if not groq_key:
+    print('GROCK_API_KEY não definido. Abortando.', file=sys.stderr)
+    sys.exit(1)
+
+cmd = [
+    'curl','-s','https://api.groq.com/openai/v1/chat/completions',
+    '-H','Content-Type: application/json',
+    '-H', f'Authorization: Bearer {groq_key}',
+    '-d', json.dumps(payload, ensure_ascii=False)
+]
+
+resp = subprocess.check_output(cmd, text=True)
+try:
+    j = json.loads(resp)
+    content = j.get('choices',[{}])[0].get('message',{}).get('content','')
+except Exception as e:
+    print('Erro ao interpretar resposta da API:', e, file=sys.stderr)
+    print(resp)
+    sys.exit(1)
+
+# Tentar interpretar resposta como JSON mapeando caminho->conteúdo
+try:
+    docs = json.loads(content)
+except Exception:
+    os.makedirs('docs', exist_ok=True)
+    with open('docs/AI_OUTPUT.md','w',encoding='utf-8') as fh:
+        fh.write(content)
+    print('AI retornou texto não-JSON. Escrevi docs/AI_OUTPUT.md')
+    sys.exit(0)
+
+# Escrever arquivos gerados em docs/
+for path, text in docs.items():
+    if not path.startswith('docs/'):
+        path = os.path.join('docs', path)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'w', encoding='utf-8') as fh:
+        fh.write(text)
+    print('Wrote', path)
+
+# Commit quando houver mudanças
+subprocess.check_call(['git','config','user.email','41898282+github-actions[bot]@users.noreply.github.com'])
+subprocess.check_call(['git','config','user.name','github-actions[bot]'])
+status = subprocess.check_output(['git','status','--porcelain'], text=True).strip()
+if status:
+    subprocess.check_call(['git','add','docs'])
+    branch = os.environ.get('GITHUB_REF','refs/heads/HEAD').rsplit('/',1)[-1]
+    msg = 'docs: Atualização automática de documentação via IA'
+    subprocess.check_call(['git','commit','-m', msg])
+    subprocess.check_call(['git','push','origin', branch])
+    print('Docs committed and pushed.')
+else:
+    print('Nenhuma alteração nos docs.')
+PY
