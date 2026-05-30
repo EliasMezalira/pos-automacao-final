@@ -63,6 +63,7 @@ jobs:
           system = (
               "Você é um gerador de documentação técnica. Retorne APENAS um JSON válido "
               "onde as chaves são caminhos em docs/ (ex: 'docs/usage.md') e os valores são strings "
+              "Na resposta, não coloque na resposta uma formatação do json como content":"```json, apenas o texto do json "
               "com o conteúdo em Markdown dos arquivos. Não inclua explicações adicionais. Gerer apenas dados para documentação técnica do projeto, focando em clareza e utilidade para desenvolvedores. Use o contexto dos arquivos fornecidos para criar uma documentação relevante e organizada e em arquivos .md, não coloque arquivos de código fonte."
           )
           user = "Gere ou atualize a documentação para este repositório com base nos arquivos (resumidos):\n" + json.dumps(files, ensure_ascii=False)
