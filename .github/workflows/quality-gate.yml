@@ -70,3 +70,70 @@ jobs:
           else
             echo "✅ Aprovado"
           fi
+  quality-gate-ia:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Instalar dependências
+        run: |
+          python -m pip install --user -r requirements.txt
+
+      - name: Executando testes e análise de qualidade
+        env:
+          PYTHONPATH: .
+        run: |
+          python -m coverage run -m unittest discover -s tests
+          python -m coverage report -m
+          python -m coverage json
+      
+      - name: quality-gate
+        run: |
+          COVERAGE=$(python -c "import json; print(json.load(open('coverage.json'))['totals']['percent_covered'])")
+          echo "Cobertura: $COVERAGE%"
+          
+      - name: Análise de IA
+        env:
+          GROQL_API_KEY: ${{ secrets.GROCK_API_KEY }}
+        run: |
+          echo "Consultando IA sobre qualidade do código..."
+          RESPONSE=$(curl -s https://api.groq.com/openai/v1/chat/completions \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $GROQCLOUD_API_KEY" \
+            -d '{
+              "model": "llama-3.1-8b-instant",
+              "messages": [
+                {
+                  "role": "system",
+                  "content": "Você é um quality gate de pipeline CI/CD. Responda apenas APROVADO ou BLOQUEADO seguido de uma justificativa curta."
+                },
+                {
+                  "role": "user",
+                  "content": "Cobertura de testes: '"$COVERAGE"'%. Projeto Python simples consulte um endpoint aberto que retorne a temperatura de um lugar com base no cep informado. Apos obter a temeratura em graus celcius, executa calculos localmente para converter a temperatura em kelvin e ,Fahrenheit e printe no teminal todas essas temperaturas. Deve avançar para produção?"
+                }
+              ]
+            }')
+
+          echo "Resposta da IA:"
+          echo "$RESPONSE"
+          DECISION=$(echo "$RESPONSE" | python3 -c "import sys,json; r=json.load(sys.stdin); print(r['choices'][0]['message']['content'] if 'choices' in r else 'BLOQUEADO - erro ao consultar IA')")
+           
+            # Mostra decisão final
+            echo "$DECISION"
+           
+            # Se a IA responder BLOQUEADO
+            if echo "$DECISION" | grep -q "BLOQUEADO"; then
+           
+              # Cria erro visível no GitHub Actions
+              echo "::error::Quality Gate BLOQUEADO pela IA"
+           
+              # Falha pipeline
+              exit 1
+           
+            fi
