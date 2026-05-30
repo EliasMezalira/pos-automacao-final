@@ -82,6 +82,7 @@ jobs:
           ]
 
           resp = subprocess.check_output(cmd, text=True)
+          print ('Resposta bruta da API:', resp)
           try:
               j = json.loads(resp)
               content = j.get('choices',[{}])[0].get('message',{}).get('content','')
