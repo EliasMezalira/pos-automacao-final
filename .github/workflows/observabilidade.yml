@@ -3,7 +3,7 @@ on: [push, workflow_dispatch]
 permissions:
   issues: write
 jobs:
-  analise de logs:
+  analise_de_logs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout do código
