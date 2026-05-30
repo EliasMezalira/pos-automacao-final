@@ -74,6 +74,7 @@ def main() -> None:
         temperatura_f = celsius_to_fahrenheit(temperatura_c)
 
         print("Temperaturas para o CEP", cep)
+        print(f"isso é um teste de commit")
         print(f"- Celsius   : {temperatura_c:.1f} °C")
         print(f"- Kelvin    : {temperatura_k:.2f} K")
         print(f"- Fahrenheit: {temperatura_f:.1f} °F")
