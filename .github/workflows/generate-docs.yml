@@ -92,6 +92,7 @@ jobs:
 
           # Tentar interpretar resposta como JSON mapeando caminho->conteúdo
           try:
+              print('content:', content)
               docs = json.loads(content)
           except Exception:
               os.makedirs('docs', exist_ok=True)
