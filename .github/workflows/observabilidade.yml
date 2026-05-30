@@ -127,7 +127,7 @@ jobs:
         env:
           GROQL_API_KEY: ${{ secrets.GROCK_API_KEY }}
         run: |
-          TRACE=$(cat metrics/processing_metrics.json | jq -c . | sed 's/"/\\"/g')
+          METRICAS=$(cat metrics/processing_metrics.json | jq -c . | sed 's/"/\\"/g')
           RESPONSE=$(curl -s https://api.groq.com/openai/v1/chat/completions \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $GROQL_API_KEY" \
@@ -140,7 +140,7 @@ jobs:
                 },
                 {
                   "role": "user",
-                  "content": "$TRACE"
+                  "content": "$METRICAS"
                 }
               ]
             }')
