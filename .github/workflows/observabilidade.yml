@@ -79,7 +79,7 @@ jobs:
         env:
           GROQL_API_KEY: ${{ secrets.GROCK_API_KEY }}
         run: |
-          LOG_CONTENT=$(cat traces/api_traces.json | tr '\n' ' ')
+          TRACE=$(cat traces/api_traces.json | tr '\n' ' ')
           RESPONSE=$(curl -s https://api.groq.com/openai/v1/chat/completions \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $GROQL_API_KEY" \
@@ -88,11 +88,11 @@ jobs:
               "messages": [
                 {
                   "role": "system",
-                  "content": ""Você é especialista em distributed tracing."
+                  "content": "Você é especialista em distributed tracing."
                 },
                 {
                   "role": "user",
-                  "content": "Analise este trace distribuído e identifique gargalos: '"$LOG_CONTENT"'"
+                  "content": "Analise este trace distribuído e identifique gargalos: '"$TRACE"'"
                 }
               ]
             }')
