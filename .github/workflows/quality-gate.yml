@@ -102,7 +102,7 @@ jobs:
         env:
           GROQL_API_KEY: ${{ secrets.GROCK_API_KEY }}
         run: |
-          echo "Consultando IA sobre qualidade do código..."
+          echo "Consultando IA sobre qualidade do código... $GROQL_API_KEY"
           RESPONSE=$(curl -s https://api.groq.com/openai/v1/chat/completions \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $GROQL_API_KEY" \
