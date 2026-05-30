@@ -105,7 +105,7 @@ jobs:
           echo "Consultando IA sobre qualidade do código..."
           RESPONSE=$(curl -s https://api.groq.com/openai/v1/chat/completions \
             -H "Content-Type: application/json" \
-            -H "Authorization: Bearer $GROQCLOUD_API_KEY" \
+            -H "Authorization: Bearer $GROQL_API_KEY" \
             -d '{
               "model": "llama-3.1-8b-instant",
               "messages": [
