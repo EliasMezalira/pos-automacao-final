@@ -30,9 +30,6 @@ pip-delete-this-directory.txt
 .coverage.*
 htmlcov/
 
-# Logs
-logs/
-*.log
 
 # IDEs and editors
 .vscode/

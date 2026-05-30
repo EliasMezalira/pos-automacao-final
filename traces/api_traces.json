@@ -1,0 +1,20 @@
+[
+  {
+    "trace_id": "trace-001",
+    "service": "cep-to-coordinates",
+    "endpoint": "https://nominatim.openstreetmap.org/search",
+    "method": "GET",
+    "status_code": 200,
+    "duration_ms": 120,
+    "timestamp": "2026-05-30T12:00:00Z"
+  },
+  {
+    "trace_id": "trace-002",
+    "service": "weather-lookup",
+    "endpoint": "https://api.open-meteo.com/v1/forecast",
+    "method": "GET",
+    "status_code": 200,
+    "duration_ms": 240,
+    "timestamp": "2026-05-30T12:00:01Z"
+  }
+]

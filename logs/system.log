@@ -1,0 +1,4 @@
+ERROR Database timeout
+CRITICAL Falha na tarefa
+WARNING Tentativa de reconexão em 3 segundos
+INFO Inicializando serviço de testes

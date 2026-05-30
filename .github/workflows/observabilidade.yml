@@ -1,0 +1,66 @@
+name: Pipeline de analise de observabilidade
+on: [push, workflow_dispatch]
+permissions:
+  issues: write
+jobs:
+  analise de logs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Login GitHub CLI
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+      
+      - name: Analisar logs com ia
+        env:
+          GROQL_API_KEY: ${{ secrets.GROCK_API_KEY }}
+        run: |
+          LOG_CONTENT=$(cat logs/system.log | tr '\n' ' ')
+          RESPONSE=$(curl -s https://api.groq.com/openai/v1/chat/completions \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $GROQL_API_KEY" \
+            -d '{
+              "model": "llama-3.1-8b-instant",
+              "messages": [
+                {
+                  "role": "system",
+                  "content": "Você é especialista em observabilidade, monitoramento e análise de logs."
+                },
+                {
+                  "role": "user",
+                  "content": "Analise estes logs e diga se existe erro crítico: '"$LOG_CONTENT"'"
+                }
+              ]
+            }')
+
+          echo "Resposta da api:"
+          echo "$RESPONSE"
+          DECISION=$(echo "$RESPONSE" | python3 -c "import sys,json; r=json.load(sys.stdin); print(r['choices'][0]['message']['content'] if 'choices' in r else 'Erro ao consultar IA')")
+ 
+          echo "Decisão da IA:"
+          echo "$DECISION"
+
+          # Se IA detectar erro crítico
+          if echo "$DECISION" | grep -qi "crítico"; then
+ 
+            echo "::error::Erro crítico detectado nos logs"
+ 
+            echo "Criando issue automática..."
+ 
+            # Cria issue automaticamente
+            ISSUE_URL=$(gh issue create \
+              --title "Erro crítico detectado nos logs" \
+              --body "$DECISION")
+ 
+            # Mostra link da issue
+            echo "Issue criada:"
+            echo "$ISSUE_URL"
+ 
+            # Falha pipeline
+            exit 1
+ 
+          fi
+ 
+          echo "Nenhum erro crítico detectado."
