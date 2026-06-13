@@ -1,5 +1,6 @@
 name: Pipeline DevOps + IA
-on: [push, workflow_dispatch]
+on:
+  push:
  
 permissions:
   issues: write

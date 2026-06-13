@@ -1,6 +1,6 @@
 name: Gerar Documentação com IA
 on:
-  push:
+  workflow_dispatch:
 permissions:
   contents: write
 
