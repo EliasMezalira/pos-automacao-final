@@ -1,4 +1,4 @@
-    name: Pipeline DevOps + IA
+name: Pipeline DevOps + IA
  
 on:
   push:
@@ -9,6 +9,8 @@ on:
   pull_request:
     branches:
       - main
+permissions:
+  issues: write
  
 jobs:
   pipeline:
