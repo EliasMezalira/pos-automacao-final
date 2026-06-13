@@ -48,6 +48,9 @@ jobs:
         env:
           GROQ_API_KEY: ${{ secrets.GROCK_API_KEY }}
  
+      - name: Login GitHub CLI
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
       # ==========================================================
       # ETAPA 3 - CANARY DEPLOY
       # ==========================================================
@@ -60,10 +63,8 @@ jobs:
       # ==========================================================
       # ETAPA 4 - ROLLBACK
       # ==========================================================
-      - name: Login GitHub CLI
-        run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
-          
+      
+
       - name: Rollback + Relatório IA
         if: failure() && steps.canary.outcome == 'failure'
         run: python deploy/rollback_trigger.py
