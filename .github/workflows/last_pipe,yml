@@ -1,0 +1,75 @@
+    name: Pipeline DevOps + IA
+ 
+on:
+  push:
+    branches:
+      - main
+      - deploy**
+ 
+  pull_request:
+    branches:
+      - main
+ 
+jobs:
+  pipeline:
+ 
+    runs-on: ubuntu-latest
+ 
+    permissions:
+      contents: read
+      issues: write
+ 
+    steps:
+ 
+      - name: Checkout
+        uses: actions/checkout@v4
+ 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+ 
+      - name: Instalar dependências
+        run: |
+          python -m pip install --user -r requirements.txt
+ 
+      # ==========================================================
+      # ETAPA 1 - QUALITY GATE
+      # ==========================================================
+ 
+      - name: Testes + Quality Gate
+        run: |
+          python -m coverage run -m unittest discover -s tests
+          python -m coverage report -m
+          python -m coverage json
+ 
+      # ==========================================================
+      # ETAPA 2 - DEPLOY GATE COM IA
+      # ==========================================================
+ 
+      - name: Deploy Gate (Groq)
+        id: deploy-gate
+        run: python deploy/deploy_gate.py
+        env:
+          GROQ_API_KEY: ${{ secrets.GROCK_API_KEY }}
+ 
+      # ==========================================================
+      # ETAPA 3 - CANARY DEPLOY
+      # ==========================================================
+ 
+      - name: Canary Deploy Simulator
+        id: canary
+        if: steps.deploy-gate.outcome == 'success'
+        run: python deploy/canary_simulator.py
+ 
+      # ==========================================================
+      # ETAPA 4 - ROLLBACK
+      # ==========================================================
+ 
+      - name: Rollback + Relatório IA
+        if: failure() && steps.canary.outcome == 'failure'
+        run: python deploy/rollback_trigger.py
+        env:
+          GROQ_API_KEY: ${{ secrets.GROCK_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+ 

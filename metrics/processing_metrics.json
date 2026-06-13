@@ -1,7 +1,7 @@
 {
-  "cpu": 92,
-  "memory": 88,
-  "latency_ms": 3000,
+  "cpu": 2,
+  "memory": 8,
+  "latency_ms": 30,
   "tests_executed": 7,
   "errors": 0,
   "timestamp": "2026-05-30T12:00:00Z"
