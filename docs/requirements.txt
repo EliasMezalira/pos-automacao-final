@@ -1,0 +1,16 @@
+# Dependências
+
+## Instalar Dependências
+No PowerShell, a partir da raiz do projeto (`c:\Users\elias\Documents\sources\pos-pipelines`):
+
+```powershell
+python -m pip install --user -r requirements.txt
+```
+
+## Dependências
+- `pip`: gerenciador de dependências do Python
+- `unittest`: framework de testes do Python
+- `unittest.mock`: módulo de mocks para testes
+- `python-coveragerun`: módulo de cobertura de código
+- `python-coverage-report`: módulo de relatório de cobertura de código
+- `python-coverage-html`: módulo de gerador de relatório de cobertura de código em HTML
