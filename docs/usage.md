@@ -1,32 +1,32 @@
-# Como Usar o Script
+# Uso do Script de Previsão do Tempo
 
-## Pré-requisitos
-- Python 3.x instalado no computador
-- Acesso à internet para executar os testes de integração
+## Preparação
 
-## Passo a Passo
-### 1. Instale as Dependências
-No PowerShell, a partir da raiz do projeto (`c:\Users\elias\Documents\sources\pos-pipelines`), execute o seguinte comando:
+Certifique-se de ter instalado as dependências necessárias executando os comandos descritos no arquivo `README.md`.
+
+## Uso do Script
+
+Para usar o script, execute o seguinte comando no PowerShell:
 
 ```powershell
-python -m pip install --user -r requirements.txt
+python src/main.py [cep]
 ```
 
-### 2. Execute o Script
-A partir da raiz do projeto, execute o script principal utilizando o seguinte comando:
+Se você não fornecer o CEP como argumento, você será prompted a inseri-lo no terminal.
 
-```bash
+## Exemplos
+
+Exemplo de uso com CEP forneido como argumento:
+
+```powershell
+python src/main.py 01001-000
+```
+Exemplo de uso sem CEP fornecido como argumento:
+
+```powershell
 python src/main.py
 ```
 
-### Argumentos
-O script pode ser executado passando um argumento, o CEP a ser buscado, no formato "00000-000". Caso não seja passado nenhum argumento, será solicitado ao usuário para informar o CEP.
+## Saída do Script
 
-## Exemplos
-- Executar o script com o CEP "01001-000":
-
-``python src/main.py 01001-000``
-
-- Executar o script sem argumento, informando o CEP ao usuário:
-
-``python src/main.py``
+O script exibe as temperaturas para o CEP forneido (ou inserido) em diferentes unidades (celsius, kelvin e fahrenheit).
