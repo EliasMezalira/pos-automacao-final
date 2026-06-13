@@ -1,5 +1,5 @@
 name: Pipeline de Qualidade de Código
-on: [push, workflow_dispatch]
+on: [workflow_dispatch]
 jobs:
   quality-gate-baixa:
     runs-on: ubuntu-latest
