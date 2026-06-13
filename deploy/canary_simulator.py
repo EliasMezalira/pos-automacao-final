@@ -10,16 +10,16 @@ def carregar_metricas(arquivo: Path) -> dict:
     Carrega as métricas geradas pela aplicação.
     """
  
-     with open(arquivo, "r", encoding="utf-8") as f:
-         dados = json.load(f)
+    with open(arquivo, "r", encoding="utf-8") as f:
+        dados = json.load(f)
 
-     return {
-         "timestamp": datetime.now().isoformat(),
-         "cpu_pct": dados["cpu"],
-         "memory_pct": dados["memory"],
-         "latency_ms": dados["latency_ms"],
-         "error_rate_pct": dados["errors"]
-     }
+    return {
+        "timestamp": datetime.now().isoformat(),
+        "cpu_pct": dados["cpu"],
+        "memory_pct": dados["memory"],
+        "latency_ms": dados["latency_ms"],
+        "error_rate_pct": dados["errors"]
+    }
  
     # return {
     #     "timestamp": datetime.now().isoformat(),
